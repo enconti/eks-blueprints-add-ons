@@ -1,3 +1,5 @@
+serviceAccountName: 'default'
+
 server:
   retention: 1h
 
@@ -34,16 +36,13 @@ serverFiles:
   alerting_rules.yml: {}
   alerts:
       groups:
-          - name: my-alerting
-            rules:
-### OutsideBusinessHours ###
-
-            - alert: OutsideBusinessHours
-              expr: (day_of_week() == 6 or day_of_week() == 0) or (hour() <= 24 or hour() >= 00)
-              for: 1m
-              labels:
-                alert_outside_business_hours: "false"
-              annotations:  
-                tittle: Outside Business Hours
-                description: "This alert fires during outside business hours. It should be blackholed by Alertmanager"
-
+        - name: my-alerting
+          rules:
+          - alert: OutsideBusinessHours
+            expr: (day_of_week() == 6 or day_of_week() == 0) or (hour() <= 24 or hour() >= 00)
+            for: 1m
+            labels:
+              alert_outside_business_hours: "false"
+            annotations:  
+              tittle: Outside Business Hours
+              description: "This alert fires during outside business hours. It should be blackholed by Alertmanager"
