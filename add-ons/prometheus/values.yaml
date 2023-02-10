@@ -1,5 +1,5 @@
 server:
-  retention: 2h
+  retention: 1h
 
   resources:
     requests:
@@ -8,3 +8,42 @@ server:
 
   global:
     scrape_interval: 15s
+
+alertmanager:
+  enabled: true
+  nodeSelector:
+    kubernetes.io/os: ${operating_system}
+
+alertmanagerFiles:
+  alertmanager.yml:
+    global: {}
+    route: 
+      group_by: ['alertname','labels']
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 3h
+      receiver: slack-alerting
+
+    inhibit_rules:
+      - source_matchers: [alertname="OutsideBusinessHours"]        
+        target_matchers: [alert_outside_business_hours="false"]
+
+ruleFiles: {}
+  
+serverFiles:
+  alerting_rules.yml: {}
+  alerts:
+      groups:
+          - name: my-alerting
+            rules:
+### OutsideBusinessHours ###
+
+            - alert: OutsideBusinessHours
+              expr: (day_of_week() == 6 or day_of_week() == 0) or (hour() <= 24 or hour() >= 00)
+              for: 1m
+              labels:
+                alert_outside_business_hours: "false"
+              annotations:  
+                tittle: Outside Business Hours
+                description: "This alert fires during outside business hours. It should be blackholed by Alertmanager"
+
